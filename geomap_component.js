@@ -158,7 +158,6 @@
                     view.graphics.add(graphic);
                 }
                 
-                echo("Test");
 
                 function addStop( event) { // no code here
                     // here neither
