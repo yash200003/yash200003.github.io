@@ -30,7 +30,7 @@
     //
     // A definition query filters what was first retrieved from the SPL feature service
     function applyDefinitionQuery() {
-        var svcLyr = gMyWebmap.findLayerById( 'V4OmsSyqpg9W3b7g/arcgis/rest/services/Manhole_location/FeatureServer' ); 
+        var svcLyr = gMyWebmap.findLayerById( 'Manhole_location (FeatureServer)' ); 
         console.log( "Layer is");
         console.log( svcLyr);
 
