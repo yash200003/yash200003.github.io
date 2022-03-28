@@ -30,7 +30,7 @@
     //
     // A definition query filters what was first retrieved from the SPL feature service
     function applyDefinitionQuery() {
-        var svcLyr = gMyWebmap.findLayerById( 'cd13f041cda644a9af54ebb982303ec4' ); 
+        var svcLyr = gMyWebmap.findLayerById( 'NWS_Watches_Warnings_v1' ); 
         console.log( "Layer is");
         console.log( svcLyr);
 
