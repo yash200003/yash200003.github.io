@@ -105,7 +105,8 @@
                 "esri/tasks/RouteTask",
                 "esri/tasks/support/RouteParameters",
                 "esri/tasks/support/FeatureSet",
-                "esri/layers/support/Sublayer",
+              //  "esri/layers/support/Sublayer",
+                "esri/layers/support/WMSSublayer",
                 "esri/Graphic",
                 "esri/views/ui/UI",
                 "esri/views/ui/DefaultUI" 
