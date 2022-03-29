@@ -51,7 +51,7 @@
             // run the query
             processDefinitionQuery();
         });
-    };
+    }
 
     // process the definition query on the passed in SPL feature sublayer
     function processDefinitionQuery()
