@@ -170,7 +170,7 @@
                         view.graphics.removeAll();
                         addGraphic("start", event.mapPoint);
                     }
-                };
+                }
 
                 function getRoute() {
                     // Setup the route parameters
