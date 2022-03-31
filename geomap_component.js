@@ -1,6 +1,5 @@
 (function() {
     let template = document.createElement("template");
-    import Sublayer from "@arcgis/core/layers/support/Sublayer";
     var gPassedServiceType; // holds passed in guarantee of service - set in onCustomWidgetBeforeUpdate()
     var gPassedPortalURL; //ESRI Portal URL
     var gPassedAPIkey; //ESRI JS api key
