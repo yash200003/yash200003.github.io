@@ -8,21 +8,76 @@
     var gMyWebmap; // needs to be global for async call to onCustomWidgetAfterUpdate()
 
     template.innerHTML = `
-        <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>MapImageLayer - Toggle sublayer visibility | Sample | ArcGIS API for JavaScript 4.23</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.23/"></script>
         <style>
-        #mapview {
-            width: 100%;
-            height: 100%;
-        }
-        #timeSlider {
-            position: absolute;
-            left: 5%;
-            right: 15%;
-            bottom: 20px;
-        }
-        </style>
-        <div id='mapview'></div>
-        <div id='timeSlider'></div>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #viewDiv {
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 60px;
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 0;
+        height: 60px;
+        width: 100%;
+      }
+
+      .sublayers {
+        margin: 0 auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        overflow: auto;
+      }
+
+      .sublayers-item {
+        flex-grow: 4;
+        background-color: rgba(34, 111, 14, 0.5);
+        color: #fff;
+        margin: 1px;
+        width: 50%;
+        padding: 20px;
+        overflow: auto;
+        text-align: center;
+        cursor: pointer;
+        font-size: 0.9em;
+      }
+
+      .visible-layer {
+        color: #fff;
+        background-color: #226f0e;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+    <div class="footer">
+      <div class="sublayers esri-widget">
+        <div class="sublayers-item" data-id="0">Cities</div>
+        <div class="sublayers-item" data-id="1">Highways</div>
+        <div class="sublayers-item" data-id="4">Railroads</div>
+        <div class="sublayers-item" data-id="2">States</div>
+      </div>
+    </div>
+  </body>
     `;
     
     // this function takes the passed in servicelevel and issues a definition query
@@ -127,7 +182,7 @@
           layer.sublayers.map((sublayer) => {
             const id = sublayer.id;
             const visible = sublayer.visible;
-            const node = document.querySelector(".sublayers-item[gPassedServiceType='" + id + "']");
+            const node = document.querySelector(".sublayers-item[data-id='" + id + "']");
             if (visible) {
               node.classList.add("visible-layer");
             }
@@ -143,7 +198,7 @@
           const id = event.target.getAttribute("gPassedServiceType");
           if (id) {
             const sublayer = layer.findSublayerById(parseInt(id));
-            const node = document.querySelector(".sublayers-item[gPassedServiceType='"+id+"']");
+            const node = document.querySelector(".sublayers-item[data-id='" + id + "']");
             sublayer.visible = !sublayer.visible;
             node.classList.toggle("visible-layer");
           }
