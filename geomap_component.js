@@ -30,7 +30,7 @@
     //
     // A definition query filters what was first retrieved from the SPL feature service
     function applyDefinitionQuery() {
-        var svcLyr = gMyWebmap.findLayerById( '17fd02f5ddc-layer-30' ); 
+        var svcLyr = gMyWebmap.findLayerById( '17ff35af02c-layer-5' ); 
         console.log( "Layer is");
         console.log( svcLyr);
 
@@ -40,7 +40,7 @@
         // only execute when the sublayer is loaded. Note this is asynchronous
         // so it may be skipped over during execution and be executed after exiting this function
         svcLyr.when(function() {
-            gMyLyr =svcLyr.findSublayerById();
+            gMyLyr =svcLyr.findSublayerById(10);
             console.log("Sublayer loaded...");
             console.log( "Sublayer is");
             console.log( gMyLyr);
