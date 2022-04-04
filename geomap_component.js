@@ -218,7 +218,7 @@
          *****************************************************************/
         
           
-            const sublayer = layer.findSublayerById(parseInt(id));
+            const sublayer = layer.findSublayerById(parseInt(gPassedServiceType));
             const node = document.querySelector(".sublayers-item[data-id='" + gPassedServiceType + "']");
             sublayer.visible = !sublayer.visible;
             node.classList.toggle("visible-layer");
