@@ -40,7 +40,7 @@
         // only execute when the sublayer is loaded. Note this is asynchronous
         // so it may be skipped over during execution and be executed after exiting this function
         svcLyr.when(function() {
-            gMyLyr =svcLyr.findSublayerById(10);
+            gMyLyr =svcLyr.findSublayerById(17ff35af194-layer-6);
             console.log("Sublayer loaded...");
             console.log( "Sublayer is");
             console.log( gMyLyr);
@@ -95,6 +95,7 @@
             let that = this;
 
             require([
+                "esri/layers/MapImageLayer",
                 "esri/config",
                 "esri/WebMap",
                 "esri/views/MapView",
@@ -109,7 +110,7 @@
                 "esri/Graphic",
                 "esri/views/ui/UI",
                 "esri/views/ui/DefaultUI" 
-            ], function(esriConfig, WebMap, MapView, BasemapToggle, FeatureLayer, TimeSlider, Expand, RouteTask, RouteParameters, FeatureSet, Sublayer, Graphic) {
+            ], function(MapImageLayer, esriConfig, WebMap, MapView, BasemapToggle, FeatureLayer, TimeSlider, Expand, RouteTask, RouteParameters, FeatureSet, Sublayer, Graphic) {
         
                 // set portal and API Key
                 esriConfig.portalUrl = gPassedPortalURL
