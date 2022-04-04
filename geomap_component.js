@@ -128,8 +128,8 @@
           url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
           sublayers: [
             {
-              id: 2,
-              visible: true
+              id: 3,
+              visible: false
             },
             {
               id: 4,
@@ -151,12 +151,12 @@
               }
             },
             {
-              id: 1,
-              visible: true
+              id: 2,
+              visible: false
             },
             {
-              id: 0,
-              visible: true
+              id: 1,
+              visible: false
             }
           ]
         });
