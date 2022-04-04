@@ -1,5 +1,6 @@
 (function() {
     let template = document.createElement("template");
+    var layer;
     var gPassedServiceType; // holds passed in guarantee of service - set in onCustomWidgetBeforeUpdate()
     var gPassedPortalURL; //ESRI Portal URL
     var gPassedAPIkey; //ESRI JS api key
@@ -124,7 +125,7 @@
           }
         };
                 
-                const layer = new MapImageLayer({
+                layer = new MapImageLayer({
           url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
           sublayers: [
             {
