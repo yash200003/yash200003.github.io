@@ -194,7 +194,7 @@
          * layers on and off in the Map Service.
          *****************************************************************/
         const sublayersElement = document.querySelector(".sublayers");
-        sublayersElement.addEventListener("change", (event) => {
+        sublayersElement.addEventListener("click", (event) => {
           const id = event.target.getAttribute("gPassedServiceType");
           if (id) {
             const sublayer = layer.findSublayerById(parseInt(id));
