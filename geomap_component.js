@@ -71,10 +71,10 @@
     <div id="viewDiv"></div>
     <div class="footer">
       <div class="sublayers esri-widget">
-        <div class="sublayers-item" data-id="0">Cities</div>
-        <div class="sublayers-item" data-id="1">Highways</div>
-        <div class="sublayers-item" data-id="4">Railroads</div>
-        <div class="sublayers-item" data-id="2">States</div>
+        <div class="sublayers-item" data-id="1">Cities</div>
+        <div class="sublayers-item" data-id="2">Highways</div>
+        <div class="sublayers-item" data-id="3">Railroads</div>
+        <div class="sublayers-item" data-id="4">States</div>
       </div>
     </div>
   </body>
