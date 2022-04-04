@@ -36,11 +36,12 @@
 
         // make layers visible
         svcLyr.visible = true;
+        var tempLayer=svcLyr;
 
         // only execute when the sublayer is loaded. Note this is asynchronous
         // so it may be skipped over during execution and be executed after exiting this function
         svcLyr.when(function() {
-            gMyLyr = svcLyr.findSublayerById(0);    // store in global variable
+            gMyLyr = tempLayer.findSublayerById(0);    // store in global variable
             console.log("Sublayer loaded...");
             console.log( "Sublayer is");
             console.log( gMyLyr);
