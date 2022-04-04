@@ -127,7 +127,7 @@
           layer.sublayers.map((sublayer) => {
             const id = sublayer.id;
             const visible = sublayer.visible;
-            const node = document.querySelector(".sublayers-item[data-id='" + id + "']");
+            const node = document.querySelector(".sublayers-item[gPassedServiceType='" + id + "']");
             if (visible) {
               node.classList.add("visible-layer");
             }
