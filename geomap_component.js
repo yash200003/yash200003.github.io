@@ -209,8 +209,7 @@
         {
             if ("servicelevel" in changedProperties) {
                 this.$servicelevel = changedProperties["servicelevel"];
-            }
-            gPassedServiceType = this.$servicelevel; // place passed in value into global
+                gPassedServiceType = this.$servicelevel; // place passed in value into global
             
             
             /*****************************************************************
@@ -223,7 +222,10 @@
             const node = document.querySelector(".sublayers-item[data-id='" + gPassedServiceType + "']");
             sublayer.visible = !sublayer.visible;
             node.classList.toggle("visible-layer");
-          
+            }
+            gPassedServiceType = this.$servicelevel; // place passed in value into global
+            
+            
       
  
 
