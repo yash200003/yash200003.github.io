@@ -29,63 +29,10 @@
     // to filter service location geometries
     //
     // A definition query filters what was first retrieved from the SPL feature service
-    function applyDefinitionQuery() {
-        var svcLyr = webmap.findLayerById( '17ff35af02c-layer-5' ); 
-        console.log( "Layer is");
-        console.log( svcLyr);
-
-        // make layers visible
-        svcLyr.visible = true;
-        var tempLayer=svcLyr;
-
-        // only execute when the sublayer is loaded. Note this is asynchronous
-        // so it may be skipped over during execution and be executed after exiting this function
-        svcLyr.when(function() {
-            gMyLyr = tempLayer.findSublayerById(0);    // store in global variable
-            console.log("Sublayer loaded...");
-            console.log( "Sublayer is");
-            console.log( gMyLyr);
-
-            // force sublayer visible
-            gMyLyr.visible = true;
-
-            // run the query
-            processDefinitionQuery();
-        });
-      
-    }
+    
 
     // process the definition query on the passed in SPL feature sublayer
-    function processDefinitionQuery()
-    {
-        // values of passedServiceType
-        // 0, 1 - no service levels. Only show service locations without a guarantee of service (GoS)
-        //     Note that 0 is passed in when the widget is initialized and 1 on subsequent times
-        // 2 - return any service location with a GoS = 1
-        // 3 - GoS = 2
-        // 4 - GoS = 3
-        // 5 - GoS = 4
-        // 6 - GoS = 5
-        // 7 - GoS = 6
-        // 8 (default) - return all service levels
-        if (gPassedServiceType <= 1) { // display all service locations
-            gMyLyr.definitionExpression = "1 = 1"
-        } else if (gPassedServiceType === 2) { // display GoS = 1
-            gMyLyr.definitionExpression = "NODISCONCT = '1'";
-        } else if (gPassedServiceType === 3) { // display GoS = 2
-            gMyLyr.definitionExpression = "NODISCONCT = '2'";
-        } else if (gPassedServiceType === 4) { // display GoS = 3
-            gMyLyr.definitionExpression = "NODISCONCT = '3'";
-        } else if (gPassedServiceType === 5) { // display GoS = 4
-            gMyLyr.definitionExpression = "NODISCONCT = '4'";
-        } else if (gPassedServiceType === 6) { // display GoS = 5
-            gMyLyr.definitionExpression = "NODISCONCT = '5'";
-        } else if (gPassedServiceType === 7) { // display GoS = 6
-            gMyLyr.definitionExpression = "NODISCONCT = '6'";
-        } else { // default is to only display service locations with a set GoS
-            gMyLyr.definitionExpression = "NODISCONCT IN ('1', '2', '3', '4', '5', '6')";
-        }
-    }
+   
 
     class Map extends HTMLElement {
         constructor() {
@@ -96,24 +43,8 @@
             this._props = {};
             let that = this;
 
-            require([
-                "esri/layers/MapImageLayer",
-                "esri/config",
-                "esri/WebMap",
-                "esri/views/MapView",
-                "esri/widgets/BasemapToggle",
-                "esri/layers/FeatureLayer",
-                "esri/widgets/TimeSlider",
-                "esri/widgets/Expand",
-                "esri/tasks/RouteTask",
-                "esri/tasks/support/RouteParameters",
-                "esri/tasks/support/FeatureSet",
-                "esri/layers/support/Sublayer",
-                "esri/Graphic",
-                "esri/views/ui/UI",
-                "esri/views/ui/DefaultUI" 
-            ], function(MapImageLayer, esriConfig, WebMap, MapView, BasemapToggle, FeatureLayer, TimeSlider, Expand, RouteTask, RouteParameters, FeatureSet, Sublayer, Graphic) {
-        
+            require(["esri/Map", "esri/views/MapView", "esri/layers/MapImageLayer"], (Map, MapView, MapImageLayer) => {
+        /*
                 // set portal and API Key
                 esriConfig.portalUrl = gPassedPortalURL
 
@@ -124,123 +55,104 @@
                 var routeTask = new RouteTask({
                     url: "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"
                 });
-        
-                // replace the ID below with the ID to your web map
-                const webmap = new WebMap ({
-                    portalItem: {
-                        id: "cd13f041cda644a9af54ebb982303ec4"
-                    }
-                });
-
-                gMyWebmap = webmap;  // save to global variable
-
-                const view = new MapView({
-                    container: "mapview",
-                    map: webmap
-                });
-
-                // time slider widget initialization
-                const timeSlider = new TimeSlider({
-                    container: "timeSlider",
-                    view: view
-                });
-        
-                // set on click for directions
-                view.on("click", addStop);
-        
-                function addGraphic(type, point) {
-                    var graphic = new Graphic({
-                        symbol: {
-                            type: "simple-marker",
-                            color: type === "start" ? "white" : "black",
-                            size: "8px"
-                        },
-                        geometry: point
-                    });
-
-                    view.graphics.add(graphic);
-                }
+                */
                 
-
-                function addStop( event) { // no code here
-                    // here neither
-                    if (view.graphics.length === 0) {
-                        addGraphic("start", event.mapPoint);
-                    } else if (view.graphics.length === 1) {
-                        addGraphic("finish", event.mapPoint);
-                        getRoute();
-                    } else {
-                        view.graphics.removeAll();
-                        addGraphic("start", event.mapPoint);
-                    }
+                //new code
+                
+                const renderer = {
+          type: "simple", // autocasts as new SimpleRenderer()
+          symbol: {
+            type: "simple-line", // autocasts as new SimpleLineSymbol()
+            color: [255, 255, 255, 0.5],
+            width: 0.75,
+            style: "long-dash-dot-dot"
+          }
+        };
+                
+                const layer = new MapImageLayer({
+          url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
+          sublayers: [
+            {
+              id: 2,
+              visible: true
+            },
+            {
+              id: 4,
+              visible: false,
+              title: "Railroads",
+              renderer: renderer,
+              source: {
+                // indicates the source of the sublayer is a dynamic data layer
+                type: "data-layer",
+                // this object defines the data source of the layer
+                // in this case it's a feature class table from a file geodatabase
+                dataSource: {
+                  type: "table",
+                  // workspace name
+                  workspaceId: "MyDatabaseWorkspaceIDSSR2",
+                  // table name
+                  dataSourceName: "ss6.gdb.Railroads"
                 }
+              }
+            },
+            {
+              id: 1,
+              visible: true
+            },
+            {
+              id: 0,
+              visible: true
+            }
+          ]
+        });
+                
+                
+            const map = new Map({
+          basemap: "dark-gray-vector",
+          layers: [layer]
+        });
 
-                function getRoute() {
-                    // Setup the route parameters
-                    var routeParams = new RouteParameters({
-                        stops: new FeatureSet({
-                            features: view.graphics.toArray() // Pass the array of graphics
-                        }),
-                        returnDirections: true
-                    });
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 3,
+          center: [-99, 39]
+        });
 
-                    // Get the route
-                    routeTask.solve(routeParams).then( showRoute);
-                }
+        /*****************************************************************
+         * Wait for Layer to load and update the page to refelect which
+         * layers are visible in the Map Service.
+         *****************************************************************/
+        layer.when(() => {
+          layer.sublayers.map((sublayer) => {
+            const id = sublayer.id;
+            const visible = sublayer.visible;
+            const node = document.querySelector(".sublayers-item[data-id='" + id + "']");
+            if (visible) {
+              node.classList.add("visible-layer");
+            }
+          });
+        });
 
-                function showRoute( data)
-                {
-                    // Display the route
-                    
-                    data.routeResults.forEach(function (result) {
-                        result.route.symbol = {
-                            type: "simple-line",
-                            color: [5, 150, 255],
-                            width: 3
-                        };
-                        view.graphics.add(result.route);
-                    });
-
-                    // Display the directions
-                    var directions = document.createElement("ol");
-                    directions.classList = "esri-widget esri-widget--panel esri-directions__scroller";
-                    directions.style.marginTop = 0;
-                    directions.style.paddingTop = "15px";
+        /*****************************************************************
+         * Listen for when buttons on the page have been clicked to turn
+         * layers on and off in the Map Service.
+         *****************************************************************/
+        const sublayersElement = document.querySelector(".sublayers");
+        sublayersElement.addEventListener("change", (event) => {
+          const id = event.target.getAttribute("gPassedServiceType");
+          if (id) {
+            const sublayer = layer.findSublayerById(parseInt(id));
+            const node = document.querySelector(".sublayers-item[gPassedServiceType='"+id+"']");
+            sublayer.visible = !sublayer.visible;
+            node.classList.toggle("visible-layer");
+          }
+      
+      });
+                
+                
+                
         
-                    // Show the directions
-                    var features = data.routeResults[0].directions.features;
-                    features.forEach(function (result, i) {
-                        var direction = document.createElement("li");
-                        direction.innerHTML =
-                        result.attributes.text + " (" + result.attributes.length.toFixed(2) + " miles)";
-                        directions.appendChild(direction);
-                    });
-
-                    // Add directions to the view
-                    view.ui.empty("top-right");
-                    view.ui.add(directions, "top-right");
-                }
-
-                view.when(function () {
-                    view.popup.autoOpenEnabled = true; //disable popups
-                    gWebmapInstantiated = 1; // used in onCustomWidgetAfterUpdate
-        
-                    // Create the basemap toggle
-                    var basemapToggle = new BasemapToggle({
-                        view:view,
-                        nextBasemap: "satellite"
-                    });
-
-        
-                    // Add the toggle to the bottom-right of the view
-                    view.ui.add( basemapToggle, "bottom-right");
-        
-                    // should have been set in onCustomWidgetBeforeUpdate()
-                    console.log( gPassedServiceType);
-
-                    // find the SPL sublayer so a query is issued
-                    applyDefinitionQuery();
-                });
 
             }); // end of require()
         } // end of constructor()    
@@ -249,12 +161,7 @@
             return this._currentSelection;
         }
 
-        onCustomWidgetBeforeUpdate(changedProperties)
-        {
-            this._props = { ...this._props, ...changedProperties };
-           // console.log(["Service Level",changedProperties["servicelevel"]]);
-
-        }
+        
 
         onCustomWidgetAfterUpdate(changedProperties) 
         {
@@ -263,27 +170,16 @@
             }
             gPassedServiceType = this.$servicelevel; // place passed in value into global
 
-            if ("portalurl" in changedProperties) {
-                this.$portalurl = changedProperties["portalurl"];
-            }
-            gPassedPortalURL = this.$portalurl; // place passed in value into global
+       
 
-            if ("apikey" in changedProperties) {
-                this.$apikey = changedProperties["apikey"];
-            }
-            gPassedAPIkey = this.$apikey; // place passed in value into global
-
-            // only attempt to filter displayed service locations if the webmap is initialized
-           if (gWebmapInstantiated === 1) {
-                applyDefinitionQuery();
-            }
+  
         }
     } // end of class
 
-    let scriptSrc = "https://js.arcgis.com/4.18/"
+    let scriptSrc = "https://js.arcgis.com/4.18/";
     let onScriptLoaded = function() {
         customElements.define("com-sap-custom-geomap", Map);
-    }
+    };
 
     //SHARED FUNCTION: reuse between widgets
     //function(src, callback) {
