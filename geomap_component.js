@@ -189,21 +189,7 @@
           });
         });
 
-        /*****************************************************************
-         * Listen for when buttons on the page have been clicked to turn
-         * layers on and off in the Map Service.
-         *****************************************************************/
-        const sublayersElement = document.querySelector(".sublayers");
-        sublayersElement.addEventListener("click", (event) => {
-          const id = event.target.getAttribute("gPassedServiceType");
-          if (id) {
-            const sublayer = layer.findSublayerById(parseInt(id));
-            const node = document.querySelector(".sublayers-item[data-id='" + id + "']");
-            sublayer.visible = !sublayer.visible;
-            node.classList.toggle("visible-layer");
-          }
-      
-      });
+        
                 
                 
                 
@@ -224,6 +210,21 @@
                 this.$servicelevel = changedProperties["servicelevel"];
             }
             gPassedServiceType = this.$servicelevel; // place passed in value into global
+            
+            
+            /*****************************************************************
+         * Listen for when buttons on the page have been clicked to turn
+         * layers on and off in the Map Service.
+         *****************************************************************/
+        
+          
+            const sublayer = layer.findSublayerById(parseInt(id));
+            const node = document.querySelector(".sublayers-item[data-id='" + gPassedServiceType + "']");
+            sublayer.visible = !sublayer.visible;
+            node.classList.toggle("visible-layer");
+          
+      
+ 
 
        
 
