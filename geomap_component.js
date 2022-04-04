@@ -39,7 +39,7 @@
 
         // only execute when the sublayer is loaded. Note this is asynchronous
         // so it may be skipped over during execution and be executed after exiting this function
-        svcLyr.then(function() {
+       
             gMyLyr =svcLyr.findSublayerById(0);
             console.log("Sublayer loaded...");
             console.log( "Sublayer is");
@@ -50,7 +50,7 @@
 
             // run the query
             processDefinitionQuery();
-        });
+      
     }
 
     // process the definition query on the passed in SPL feature sublayer
