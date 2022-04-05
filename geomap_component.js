@@ -8,20 +8,31 @@
     var gMyWebmap; // needs to be global for async call to onCustomWidgetAfterUpdate()
 
     template.innerHTML = `
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <title>MapImageLayer - Toggle sublayer visibility | Sample | ArcGIS API for JavaScript 4.23</title>
+    <title>
+      Edit features with the Editor widget | Sample | ArcGIS API for JavaScript
+      4.23
+    </title>
 
-    <link rel = "stylesheet" href = "https://js.arcgis.com/4.23/esri/themes/light/main.css" / >
-	<script src = "https://js.arcgis.com/4.23/" > < /script> 
-    <style >
-	html,body, #viewDiv{
-		padding: 0;
-		margin: 0;
-		height: 100 % ;
-		width: 100 % ;
-	}
-    </style> 
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.23/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.23/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .esri-editor .esri-item-list__scroller {
+        max-height: 350px;
+      }
+    </style>
     `;
 
     // this function takes the passed in servicelevel and issues a definition query
