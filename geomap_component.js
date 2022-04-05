@@ -198,6 +198,7 @@
             if ("servicelevel" in changedProperties) {
                 this.$servicelevel = changedProperties["servicelevel"];
                 gPassedServiceType = this.$servicelevel; // place passed in value into global
+                console.log(gPassedServiceType);
 /*
                 const sublayer = layer.findSublayerById(parseInt(gPassedServiceType));
                 const node = document.querySelector(".sublayers-item[data-id='" + gPassedServiceType + "']");
