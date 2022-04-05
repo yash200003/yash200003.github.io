@@ -127,11 +127,11 @@
                     sublayers: [
                         {
                             id: 3,
-                            visible: false,
+                            visible: true,
                         },
                         {
                             id: 4,
-                            visible: false,
+                            visible: true,
                             title: "Railroads",
                             renderer: renderer,
                             source: {
@@ -150,11 +150,11 @@
                         },
                         {
                             id: 2,
-                            visible: false,
+                            visible: true,
                         },
                         {
                             id: 1,
-                            visible: false,
+                            visible: true,
                         },
                     ],
                 });
