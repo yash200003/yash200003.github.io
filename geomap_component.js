@@ -77,7 +77,32 @@
         <div class="sublayers-item" data-id="4">States</div>
       </div>
     </div>
-  </body>
+    <p>Select your size:</p>
+    <div>
+        <input type="radio" name="size" value="XS" id="xs">
+        <label for="xs">XS</label>
+    </div>
+    <div>
+        <input type="radio" name="size" value="S" id="s">
+        <label for="s">S</label>
+    </div>
+    <div>
+        <input type="radio" name="size" value="M" id="m">
+        <label for="m">M</label>
+    </div>
+    <div>
+        <input type="radio" name="size" value="L" id="l">
+        <label for="l">L</label>
+    </div>
+    <div>
+        <input type="radio" name="size" value="XL" id="xl">
+        <label for="xl">XL</label>
+    </div>
+    <div>
+        <input type="radio" name="size" value="XXL" id="xxl">
+        <label for="xxl">XXL</label>
+    </div>
+</body>
     `;
 
     // this function takes the passed in servicelevel and issues a definition query
