@@ -12,89 +12,16 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <title>MapImageLayer - Toggle sublayer visibility | Sample | ArcGIS API for JavaScript 4.23</title>
 
-    <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
-    <script src="https://js.arcgis.com/4.23/"></script>
-        <style>
-      html,
-      body {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        width: 100%;
-      }
-
-      #viewDiv {
-        position: absolute;
-        right: 0;
-        left: 0;
-        top: 0;
-        bottom: 60px;
-      }
-
-      .footer {
-        position: absolute;
-        bottom: 0;
-        height: 60px;
-        width: 100%;
-      }
-
-      .sublayers {
-        margin: 0 auto;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        overflow: auto;
-      }
-
-      .sublayers-item {
-        flex-grow: 4;
-        background-color: rgba(34, 111, 14, 0.5);
-        color: #fff;
-        margin: 1px;
-        width: 50%;
-        padding: 20px;
-        overflow: auto;
-        text-align: center;
-        cursor: pointer;
-        font-size: 0.9em;
-      }
-
-      .visible-layer {
-        color: #fff;
-        background-color: #226f0e;
-      }
-    </style>
-  </head>
-
-  <body>
-   
-    <p>Select your size:</p>
-    <div class="footer">
-        <input type="radio" name="size" value="XS" id="xs">
-        <label for="xs">XS</label>
-    </div>
-    <div>
-        <input type="radio" name="size" value="S" id="s">
-        <label for="s">S</label>
-    </div>
-    <div>
-        <input type="radio" name="size" value="M" id="m">
-        <label for="m">M</label>
-    </div>
-    <div>
-        <input type="radio" name="size" value="L" id="l">
-        <label for="l">L</label>
-    </div>
-    <div>
-        <input type="radio" name="size" value="XL" id="xl">
-        <label for="xl">XL</label>
-    </div>
-    <div>
-        <input type="radio" name="size" value="XXL" id="xxl">
-        <label for="xxl">XXL</label>
-    </div>
-</body>
+    <link rel = "stylesheet" href = "https://js.arcgis.com/4.23/esri/themes/light/main.css" / >
+	<script src = "https://js.arcgis.com/4.23/" > < /script> 
+    <style >
+	html,body, #viewDiv{
+		padding: 0;
+		margin: 0;
+		height: 100 % ;
+		width: 100 % ;
+	}
+    </style> 
     `;
 
     // this function takes the passed in servicelevel and issues a definition query
@@ -112,99 +39,120 @@
             this.appendChild(template.content.cloneNode(true));
             this._props = {};
             let that = this;
+            
+            //start of required
+            require(["esri/layers/FeatureLayer", "esri/WebScene", "esri/views/SceneView", "esri/widgets/Editor"], (
+		FeatureLayer,
+		WebScene,
+		SceneView,
+		Editor
+	) =>
+	{
+		// Create a map from the referenced webscene item id
+		const webscene = new WebScene(
+		{
+			portalItem:
+			{
+				id: "206a6a13162c4d9a95ea6a87abad2437"
+			}
+		});
 
-            require(["esri/Map", "esri/views/MapView", "esri/layers/MapImageLayer"], (Map, MapView, MapImageLayer) => {
-                /*
-                // set portal and API Key
-                esriConfig.portalUrl = gPassedPortalURL
+		// Create a layer with visualVariables to use interactive handles for size and rotation
+		const recreationLayer = new FeatureLayer(
+		{
+			title: "Recreation",
+			url: "https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/EditableFeatures3D/FeatureServer/1",
+			elevationInfo:
+			{
+				mode: "absolute-height"
+			},
+			renderer:
+			{
+				type: "unique-value", // autocasts as new UniqueValueRenderer()
+				field: "TYPE",
+				visualVariables: [
+				{
+					// size can be modified with the interactive handle
+					type: "size",
+					field: "SIZE",
+					axis: "height",
+					valueUnit: "meters"
+				},
+				{
+					// rotation can be modified with the interactive handle
+					type: "rotation",
+					field: "ROTATION"
+				}],
+				uniqueValueInfos: [
+				{
+					value: "1",
+					label: "Slide",
+					symbol:
+					{
+						type: "point-3d", // autocasts as new PointSymbol3D()
+						symbolLayers: [
+						{
+							type: "object",
+							resource:
+							{
+								href: "https://static.arcgis.com/arcgis/styleItems/Recreation/gltf/resource/Slide.glb"
+							}
+						}],
+						styleOrigin:
+						{
+							styleName: "EsriRecreationStyle",
+							name: "Slide"
+						}
+					}
+				},
+				{
+					value: "2",
+					label: "Swing",
+					symbol:
+					{
+						type: "point-3d", // autocasts as new PointSymbol3D()
+						symbolLayers: [
+						{
+							type: "object",
+							resource:
+							{
+								href: "https://static.arcgis.com/arcgis/styleItems/Recreation/gltf/resource/Swing.glb"
+							}
+						}],
+						styleOrigin:
+						{
+							styleName: "EsriRecreationStyle",
+							name: "Swing"
+						}
+					}
+				}]
+			}
+		});
 
-                //  set esri api Key 
-                esriConfig.apiKey = gPassedAPIkey
-        
-                // set routing service
-                var routeTask = new RouteTask({
-                    url: "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"
-                });
-                */
+		webscene.add(recreationLayer);
 
-                //new code
+		const view = new SceneView(
+		{
+			container: "viewDiv",
+			qualityProfile: "high",
+			map: webscene
+		});
 
-                const renderer = {
-                    type: "simple", // autocasts as new SimpleRenderer()
-                    symbol: {
-                        type: "simple-line", // autocasts as new SimpleLineSymbol()
-                        color: [255, 255, 255, 0.5],
-                        width: 0.75,
-                        style: "long-dash-dot-dot",
-                    },
-                };
-
-                const layer= new MapImageLayer({
-                    url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
-                    sublayers: [
-                        {
-                            id: 3,
-                            visible: true,
-                        },
-                        {
-                            id: 4,
-                            visible: true,
-                            title: "Railroads",
-                            renderer: renderer,
-                            source: {
-                                // indicates the source of the sublayer is a dynamic data layer
-                                type: "data-layer",
-                                // this object defines the data source of the layer
-                                // in this case it's a feature class table from a file geodatabase
-                                dataSource: {
-                                    type: "table",
-                                    // workspace name
-                                    workspaceId: "MyDatabaseWorkspaceIDSSR2",
-                                    // table name
-                                    dataSourceName: "ss6.gdb.Railroads",
-                                },
-                            },
-                        },
-                        {
-                            id: 2,
-                            visible: true,
-                        },
-                        {
-                            id: 1,
-                            visible: true,
-                        },
-                    ],
-                });
-                
-                
-
-                const map = new Map({
-                    basemap: "dark-gray-vector",
-                    layers: [layer],
-                });
-
-                const view = new MapView({
-                    container: "viewDiv",
-                    map: map,
-                    zoom: 3,
-                    center: [-99, 39],
-                });
-
-                /*****************************************************************
-                 * Wait for Layer to load and update the page to refelect which
-                 * layers are visible in the Map Service.
-                 *****************************************************************/
-                layer.when(() => {
-                    layer.sublayers.map((sublayer) => {
-                        const id = sublayer.id;
-                        const visible = sublayer.visible;
-                        const node = document.querySelector(".sublayers-item[data-id='" + id + "']");
-                        if (visible) {
-                            node.classList.add("visible-layer");
-                        }
-                    });
-                });
-            }); // end of require()
+		view.when(() =>
+		{
+			view.popup.autoOpenEnabled = false; //disable popups
+			// Create the Editor
+			const editor = new Editor(
+			{
+				view: view
+			});
+			// Add widget to top-right of the view
+			view.ui.add(editor, "top-right");
+		});
+	});
+            
+            
+            //end of required
         } // end of constructor()
 
         getSelection() {
