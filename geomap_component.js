@@ -68,17 +68,9 @@
   </head>
 
   <body>
-    <div id="viewDiv"></div>
-    <div class="footer">
-      <div class="sublayers esri-widget">
-        <div class="sublayers-item" data-id="1">Cities</div>
-        <div class="sublayers-item" data-id="2">Highways</div>
-        <div class="sublayers-item" data-id="3">Railroads</div>
-        <div class="sublayers-item" data-id="4">States</div>
-      </div>
-    </div>
+   
     <p>Select your size:</p>
-    <div>
+    <div class="footer">
         <input type="radio" name="size" value="XS" id="xs">
         <label for="xs">XS</label>
     </div>
