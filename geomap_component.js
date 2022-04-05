@@ -1,6 +1,5 @@
 (function () {
     let template = document.createElement("template");
-    let layer = new MapImageLayer({});
     var gPassedServiceType; // holds passed in guarantee of service - set in onCustomWidgetBeforeUpdate()
     var gPassedPortalURL; //ESRI Portal URL
     var gPassedAPIkey; //ESRI JS api key
@@ -123,7 +122,7 @@
                     },
                 };
 
-                layer =({
+                const layer= new MapImageLayer({
                     url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
                     sublayers: [
                         {
@@ -199,16 +198,11 @@
             if ("servicelevel" in changedProperties) {
                 this.$servicelevel = changedProperties["servicelevel"];
                 gPassedServiceType = this.$servicelevel; // place passed in value into global
-
-                /*****************************************************************
-                 * Listen for when buttons on the page have been clicked to turn
-                 * layers on and off in the Map Service.
-                 *****************************************************************/
-
+/*
                 const sublayer = layer.findSublayerById(parseInt(gPassedServiceType));
                 const node = document.querySelector(".sublayers-item[data-id='" + gPassedServiceType + "']");
                 sublayer.visible = !sublayer.visible;
-                node.classList.toggle("visible-layer");
+                node.classList.toggle("visible-layer"); */
             }
             gPassedServiceType = this.$servicelevel; // place passed in value into global
         }
