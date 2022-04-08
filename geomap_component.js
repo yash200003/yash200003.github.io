@@ -1,4 +1,4 @@
-(function() {
+(function () {
     let template = document.createElement("template");
     var gPassedServiceType; // holds passed in guarantee of service - set in onCustomWidgetBeforeUpdate()
     var gPassedPortalURL; //ESRI Portal URL
@@ -8,312 +8,546 @@
     var gMyWebmap; // needs to be global for async call to onCustomWidgetAfterUpdate()
 
     template.innerHTML = `
-        <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css">
+        <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/dark/main.css" />
+        <script src="https://js.arcgis.com/4.23/"></script>
         <style>
-        #mapview {
-            width: 100%;
-            height: 100%;
-        }
-        #timeSlider {
-            position: absolute;
-            left: 5%;
-            right: 15%;
-            bottom: 20px;
-        }
-        </style>
-        <div id='mapview'></div>
-        <div id='timeSlider'></div>
+  html, body, #viewDiv {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #infoDiv {
+    padding: 10px;
+    width: 275px;
+  }
+  #sliderValue{
+    font-weight: bolder;
+  }
+  #legendDiv{
+    width: 260px;
+  }
+  #description{
+    padding: 10px 0 10px 0;
+  }
+</style><body>
+  <div id="viewDiv"></div>
+  <div id="infoDiv" class="esri-widget">
+    <div id="description">
+      Show power plants with at least <span id="sliderValue">0</span> megawatts of capacity
+    </div>
+    <div id="sliderContainer">
+      <div id="sliderDiv"></div>
+    </div>
+    <div id="legendDiv"></div>
+  </div>
+</body>
+<body>
+  <div id="viewDiv"></div>
+  <div id="infoDiv" class="esri-widget">
+    <div id="description">
+      Show power plants with at least <span id="sliderValue">0</span> megawatts of capacity
+    </div>
+    <div id="sliderContainer">
+      <div id="sliderDiv"></div>
+    </div>
+    <div id="legendDiv"></div>
+  </div>
+</body>
+        
     `;
-    
+
     // this function takes the passed in servicelevel and issues a definition query
     // to filter service location geometries
     //
     // A definition query filters what was first retrieved from the SPL feature service
-    function applyDefinitionQuery() {
-        var svcLyr = webmap.findLayerById( '17ff35af02c-layer-5' ); 
-        console.log( "Layer is");
-        console.log( svcLyr);
-
-        // make layers visible
-        svcLyr.visible = true;
-        var tempLayer=svcLyr;
-
-        // only execute when the sublayer is loaded. Note this is asynchronous
-        // so it may be skipped over during execution and be executed after exiting this function
-        svcLyr.when(function() {
-            gMyLyr = tempLayer.findSublayerById(0);    // store in global variable
-            console.log("Sublayer loaded...");
-            console.log( "Sublayer is");
-            console.log( gMyLyr);
-
-            // force sublayer visible
-            gMyLyr.visible = true;
-
-            // run the query
-            processDefinitionQuery();
-        });
-      
-    }
-
-    // process the definition query on the passed in SPL feature sublayer
-    function processDefinitionQuery()
-    {
-        // values of passedServiceType
-        // 0, 1 - no service levels. Only show service locations without a guarantee of service (GoS)
-        //     Note that 0 is passed in when the widget is initialized and 1 on subsequent times
-        // 2 - return any service location with a GoS = 1
-        // 3 - GoS = 2
-        // 4 - GoS = 3
-        // 5 - GoS = 4
-        // 6 - GoS = 5
-        // 7 - GoS = 6
-        // 8 (default) - return all service levels
-        if (gPassedServiceType <= 1) { // display all service locations
-            gMyLyr.definitionExpression = "1 = 1"
-        } else if (gPassedServiceType === 2) { // display GoS = 1
-            gMyLyr.definitionExpression = "NODISCONCT = '1'";
-        } else if (gPassedServiceType === 3) { // display GoS = 2
-            gMyLyr.definitionExpression = "NODISCONCT = '2'";
-        } else if (gPassedServiceType === 4) { // display GoS = 3
-            gMyLyr.definitionExpression = "NODISCONCT = '3'";
-        } else if (gPassedServiceType === 5) { // display GoS = 4
-            gMyLyr.definitionExpression = "NODISCONCT = '4'";
-        } else if (gPassedServiceType === 6) { // display GoS = 5
-            gMyLyr.definitionExpression = "NODISCONCT = '5'";
-        } else if (gPassedServiceType === 7) { // display GoS = 6
-            gMyLyr.definitionExpression = "NODISCONCT = '6'";
-        } else { // default is to only display service locations with a set GoS
-            gMyLyr.definitionExpression = "NODISCONCT IN ('1', '2', '3', '4', '5', '6')";
-        }
-    }
 
     class Map extends HTMLElement {
         constructor() {
             super();
-            
+
             //this._shadowRoot = this.attachShadow({mode: "open"});
             this.appendChild(template.content.cloneNode(true));
             this._props = {};
             let that = this;
 
-            require([
-                "esri/layers/MapImageLayer",
-                "esri/config",
-                "esri/WebMap",
-                "esri/views/MapView",
-                "esri/widgets/BasemapToggle",
-                "esri/layers/FeatureLayer",
-                "esri/widgets/TimeSlider",
-                "esri/widgets/Expand",
-                "esri/tasks/RouteTask",
-                "esri/tasks/support/RouteParameters",
-                "esri/tasks/support/FeatureSet",
-                "esri/layers/support/Sublayer",
-                "esri/Graphic",
-                "esri/views/ui/UI",
-                "esri/views/ui/DefaultUI" 
-            ], function(MapImageLayer, esriConfig, WebMap, MapView, BasemapToggle, FeatureLayer, TimeSlider, Expand, RouteTask, RouteParameters, FeatureSet, Sublayer, Graphic) {
-        
-                // set portal and API Key
-                esriConfig.portalUrl = gPassedPortalURL
+            require(["esri/Map", "esri/views/MapView", "esri/layers/FeatureLayer", "esri/widgets/Legend", "esri/widgets/Slider", "esri/widgets/Expand"], (Map, MapView, FeatureLayer, Legend, Slider, Expand) => {
+                // Configure clustering on the layer with a
+                // popupTemplate displaying the predominant
+                // fuel type of the power plants in the cluster
 
-                //  set esri api Key 
-                esriConfig.apiKey = gPassedAPIkey
-        
-                // set routing service
-                var routeTask = new RouteTask({
-                    url: "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"
-                });
-        
-                // replace the ID below with the ID to your web map
-                const webmap = new WebMap ({
+                const clusterLabelThreshold = 1500;
+
+                const haloColor = "#373837";
+                const color = "#f0f0f0";
+
+                const clusterConfig = {
+                    type: "cluster",
+                    popupTemplate: {
+                        title: "Cluster summary",
+                        content: [
+                            {
+                                type: "text",
+                                text: `
+            This cluster represents <b>{cluster_count}</b> power plants with an average capacity of <b>{cluster_avg_capacity_mw} megawatts</b>.
+             The power plants in this cluster produce a total of <b>{expression/total-mw} megawatts</b> of power.`,
+                            },
+                            {
+                                type: "text",
+                                text: "Most power plants in this cluster generate power from <b>{cluster_type_fuel1}</b>.",
+                            },
+                        ],
+                        fieldInfos: [
+                            {
+                                fieldName: "cluster_count",
+                                format: {
+                                    places: 0,
+                                    digitSeparator: true,
+                                },
+                            },
+                            {
+                                fieldName: "cluster_avg_capacity_mw",
+                                format: {
+                                    places: 2,
+                                    digitSeparator: true,
+                                },
+                            },
+                            {
+                                fieldName: "expression/total-mw",
+                                format: {
+                                    places: 0,
+                                    digitSeparator: true,
+                                },
+                            },
+                        ],
+                        expressionInfos: [
+                            {
+                                name: "total-mw",
+                                title: "total megawatts",
+                                expression: "$feature.cluster_avg_capacity_mw * $feature.cluster_count",
+                            },
+                        ],
+                    },
+                    // larger radii look better with multiple label classes
+                    // smaller radii looks better visually
+                    clusterRadius: "120px",
+                    labelsVisible: true,
+                    labelingInfo: [
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    family: "Noto Sans",
+                                    size: "11px",
+                                },
+                                xoffset: 0,
+                                yoffset: "-15px",
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: "Text($feature.cluster_count, '#,### plants')",
+                            },
+                            where: `cluster_avg_capacity_mw > ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "2px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "18px",
+                                },
+                                xoffset: 0,
+                                yoffset: 0,
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: "$feature.cluster_type_fuel1",
+                            },
+                            where: `cluster_avg_capacity_mw > ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "12px",
+                                },
+                                xoffset: 0,
+                                yoffset: "15px",
+                            },
+                            deconflictionStrategy: "none",
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: `
+          var value = $feature.cluster_avg_capacity_mw;
+          var num = Count(Text(Round(value)));
+
+          Decode(num,
+            4, Text(value / Pow(10, 3), "##.0k"),
+            5, Text(value / Pow(10, 3), "##k"),
+            6, Text(value / Pow(10, 3), "##k"),
+            7, Text(value / Pow(10, 6), "##.0m"),
+            Text(value, "#,###")
+          );
+          `,
+                            },
+                            where: `cluster_avg_capacity_mw > ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    family: "Noto Sans",
+                                    size: "11px",
+                                },
+                                xoffset: 0,
+                                yoffset: "-15px",
+                            },
+                            labelPlacement: "above-right",
+                            labelExpressionInfo: {
+                                expression: "Text($feature.cluster_count, '#,### plants')",
+                            },
+                            where: `cluster_avg_capacity_mw <= ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "2px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "18px",
+                                },
+                            },
+                            labelPlacement: "above-right",
+                            labelExpressionInfo: {
+                                expression: "$feature.cluster_type_fuel1",
+                            },
+                            where: `cluster_avg_capacity_mw <= ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "12px",
+                                },
+                                xoffset: 0,
+                                yoffset: 0,
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: `
+          var value = $feature.cluster_avg_capacity_mw;
+          var num = Count(Text(Round(value)));
+
+          Decode(num,
+            4, Text(value / Pow(10, 3), "##.0k"),
+            5, Text(value / Pow(10, 3), "##k"),
+            6, Text(value / Pow(10, 3), "##k"),
+            7, Text(value / Pow(10, 6), "##.0m"),
+            Text(value, "#,###")
+          );
+          `,
+                            },
+                            where: `cluster_avg_capacity_mw <= ${clusterLabelThreshold}`,
+                        },
+                    ],
+                };
+
+                const layer = new FeatureLayer({
                     portalItem: {
-                        id: "cd13f041cda644a9af54ebb982303ec4"
-                    }
+                        id: "eb54b44c65b846cca12914b87b315169",
+                    },
+                    featureReduction: clusterConfig,
+                    popupEnabled: true,
+                    labelsVisible: true,
+                    labelingInfo: [
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    family: "Noto Sans",
+                                    size: "11px",
+                                },
+                                xoffset: 0,
+                                yoffset: "-15px",
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: "$feature.name",
+                            },
+                            where: `capacity_mw > ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "2px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "18px",
+                                },
+                                xoffset: 0,
+                                yoffset: 0,
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: "$feature.fuel1",
+                            },
+                            where: `capacity_mw > ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "12px",
+                                },
+                                xoffset: 0,
+                                yoffset: "15px",
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: `
+          var value = $feature.capacity_mw;
+          var num = Count(Text(Round(value)));
+
+          Decode(num,
+            4, Text(value / Pow(10, 3), "##.0k"),
+            5, Text(value / Pow(10, 3), "##k"),
+            6, Text(value / Pow(10, 3), "##k"),
+            7, Text(value / Pow(10, 6), "##.0m"),
+            Text(value, "#,###")
+          );
+          `,
+                            },
+                            where: `capacity_mw > ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    family: "Noto Sans",
+                                    size: "11px",
+                                },
+                                xoffset: 0,
+                                yoffset: "-15px",
+                            },
+                            labelPlacement: "above-right",
+                            labelExpressionInfo: {
+                                expression: "$feature.name",
+                            },
+                            where: `capacity_mw <= ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "2px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "18px",
+                                },
+                            },
+                            labelPlacement: "above-right",
+                            labelExpressionInfo: {
+                                expression: "$feature.fuel1",
+                            },
+                            where: `capacity_mw <= ${clusterLabelThreshold}`,
+                        },
+                        {
+                            symbol: {
+                                type: "text",
+                                haloColor,
+                                haloSize: "1px",
+                                color,
+                                font: {
+                                    weight: "bold",
+                                    family: "Noto Sans",
+                                    size: "12px",
+                                },
+                                xoffset: 0,
+                                yoffset: 0,
+                            },
+                            labelPlacement: "center-center",
+                            labelExpressionInfo: {
+                                expression: `
+          var value = $feature.capacity_mw;
+          var num = Count(Text(Round(value)));
+
+          Decode(num,
+            4, Text(value / Pow(10, 3), "##.0k"),
+            5, Text(value / Pow(10, 3), "##k"),
+            6, Text(value / Pow(10, 3), "##k"),
+            7, Text(value / Pow(10, 6), "##.0m"),
+            Text(value, "#,###")
+          );
+          `,
+                            },
+                            where: `capacity_mw <= ${clusterLabelThreshold}`,
+                        },
+                    ],
                 });
 
-                gMyWebmap = webmap;  // save to global variable
+                const map = new Map({
+                    basemap: {
+                        portalItem: {
+                            id: "8d91bd39e873417ea21673e0fee87604",
+                        },
+                    },
+                    layers: [layer],
+                });
 
                 const view = new MapView({
-                    container: "mapview",
-                    map: webmap
-                });
-
-                // time slider widget initialization
-                const timeSlider = new TimeSlider({
-                    container: "timeSlider",
-                    view: view
-                });
-        
-                // set on click for directions
-                view.on("click", addStop);
-        
-                function addGraphic(type, point) {
-                    var graphic = new Graphic({
-                        symbol: {
-                            type: "simple-marker",
-                            color: type === "start" ? "white" : "black",
-                            size: "8px"
+                    container: "viewDiv",
+                    map: map,
+                    extent: {
+                        spatialReference: {
+                            latestWkid: 3857,
+                            wkid: 102100,
                         },
-                        geometry: point
-                    });
-
-                    view.graphics.add(graphic);
-                }
-                
-
-                function addStop( event) { // no code here
-                    // here neither
-                    if (view.graphics.length === 0) {
-                        addGraphic("start", event.mapPoint);
-                    } else if (view.graphics.length === 1) {
-                        addGraphic("finish", event.mapPoint);
-                        getRoute();
-                    } else {
-                        view.graphics.removeAll();
-                        addGraphic("start", event.mapPoint);
-                    }
-                }
-
-                function getRoute() {
-                    // Setup the route parameters
-                    var routeParams = new RouteParameters({
-                        stops: new FeatureSet({
-                            features: view.graphics.toArray() // Pass the array of graphics
-                        }),
-                        returnDirections: true
-                    });
-
-                    // Get the route
-                    routeTask.solve(routeParams).then( showRoute);
-                }
-
-                function showRoute( data)
-                {
-                    // Display the route
-                    
-                    data.routeResults.forEach(function (result) {
-                        result.route.symbol = {
-                            type: "simple-line",
-                            color: [5, 150, 255],
-                            width: 3
-                        };
-                        view.graphics.add(result.route);
-                    });
-
-                    // Display the directions
-                    var directions = document.createElement("ol");
-                    directions.classList = "esri-widget esri-widget--panel esri-directions__scroller";
-                    directions.style.marginTop = 0;
-                    directions.style.paddingTop = "15px";
-        
-                    // Show the directions
-                    var features = data.routeResults[0].directions.features;
-                    features.forEach(function (result, i) {
-                        var direction = document.createElement("li");
-                        direction.innerHTML =
-                        result.attributes.text + " (" + result.attributes.length.toFixed(2) + " miles)";
-                        directions.appendChild(direction);
-                    });
-
-                    // Add directions to the view
-                    view.ui.empty("top-right");
-                    view.ui.add(directions, "top-right");
-                }
-
-                view.when(function () {
-                    view.popup.autoOpenEnabled = true; //disable popups
-                    gWebmapInstantiated = 1; // used in onCustomWidgetAfterUpdate
-        
-                    // Create the basemap toggle
-                    var basemapToggle = new BasemapToggle({
-                        view:view,
-                        nextBasemap: "satellite"
-                    });
-
-        
-                    // Add the toggle to the bottom-right of the view
-                    view.ui.add( basemapToggle, "bottom-right");
-        
-                    // should have been set in onCustomWidgetBeforeUpdate()
-                    console.log( gPassedServiceType);
-
-                    // find the SPL sublayer so a query is issued
-                    applyDefinitionQuery();
+                        xmin: -42087672,
+                        ymin: 4108613,
+                        xmax: -36095009,
+                        ymax: 8340167,
+                    },
                 });
 
-            }); // end of require()
-        } // end of constructor()    
+                layer.when().then(() => {
+                    const renderer = layer.renderer.clone();
+                    renderer.visualVariables = [
+                        {
+                            type: "size",
+                            field: "capacity_mw",
+                            legendOptions: {
+                                title: "Capacity (MW)",
+                            },
+                            minSize: "24px",
+                            maxSize: "100px",
+                            minDataValue: 1,
+                            maxDataValue: 5000,
+                        },
+                    ];
+                    layer.renderer = renderer;
+                });
 
-        getSelection() {
-            return this._currentSelection;
-        }
+                const legend = new Legend({
+                    view: view,
+                    container: "legendDiv",
+                });
 
-        onCustomWidgetBeforeUpdate(changedProperties)
-        {
-            this._props = { ...this._props, ...changedProperties };
-           // console.log(["Service Level",changedProperties["servicelevel"]]);
+                const infoDiv = document.getElementById("infoDiv");
+                view.ui.add(
+                    new Expand({
+                        view: view,
+                        content: infoDiv,
+                        expandIconClass: "esri-icon-layer-list",
+                        expanded: true,
+                    }),
+                    "top-right"
+                );
 
-        }
+                view.whenLayerView(layer).then((layerView) => {
+                    const field = "capacity_mw";
 
-        onCustomWidgetAfterUpdate(changedProperties) 
-        {
-            if ("servicelevel" in changedProperties) {
-                this.$servicelevel = changedProperties["servicelevel"];
-            }
-            gPassedServiceType = this.$servicelevel; // place passed in value into global
+                    const slider = new Slider({
+                        min: 0,
+                        max: 2000,
+                        values: [0],
+                        container: document.getElementById("sliderDiv"),
+                        visibleElements: {
+                            rangeLabels: true,
+                        },
+                        precision: 0,
+                    });
 
-            if ("portalurl" in changedProperties) {
-                this.$portalurl = changedProperties["portalurl"];
-            }
-            gPassedPortalURL = this.$portalurl; // place passed in value into global
+                    const sliderValue = document.getElementById("sliderValue");
 
-            if ("apikey" in changedProperties) {
-                this.$apikey = changedProperties["apikey"];
-            }
-            gPassedAPIkey = this.$apikey; // place passed in value into global
+                    // filter features by power plant capacity when the user
+                    // drags the slider thumb. If clustering is enabled,
+                    // clusters will recompute and render based on the number
+                    // and type of features that satisfy the filter where clause
 
-            // only attempt to filter displayed service locations if the webmap is initialized
-           if (gWebmapInstantiated === 1) {
-                applyDefinitionQuery();
-            }
-        }
+                    slider.on(["thumb-change", "thumb-drag"], (event) => {
+                        sliderValue.innerText = event.value;
+                        layerView.filter = {
+                            where: field + " >= " + event.value,
+                        };
+                    });
+                });
+            });
+        } // end of constructor()
     } // end of class
 
-    let scriptSrc = "https://js.arcgis.com/4.18/"
-    let onScriptLoaded = function() {
+    let scriptSrc = "https://js.arcgis.com/4.18/";
+    let onScriptLoaded = function () {
         customElements.define("com-sap-custom-geomap", Map);
-    }
+    };
 
     //SHARED FUNCTION: reuse between widgets
     //function(src, callback) {
     let customElementScripts = window.sessionStorage.getItem("customElementScripts") || [];
-    let scriptStatus = customElementScripts.find(function(element) {
+    let scriptStatus = customElementScripts.find(function (element) {
         return element.src == scriptSrc;
     });
 
     if (scriptStatus) {
-        if(scriptStatus.status == "ready") {
+        if (scriptStatus.status == "ready") {
             onScriptLoaded();
         } else {
             scriptStatus.callbacks.push(onScriptLoaded);
         }
     } else {
         let scriptObject = {
-            "src": scriptSrc,
-            "status": "loading",
-            "callbacks": [onScriptLoaded]
-        }
+            src: scriptSrc,
+            status: "loading",
+            callbacks: [onScriptLoaded],
+        };
         customElementScripts.push(scriptObject);
         var script = document.createElement("script");
         script.type = "text/javascript";
         script.src = scriptSrc;
-        script.onload = function(){
+        script.onload = function () {
             scriptObject.status = "ready";
             scriptObject.callbacks.forEach((callbackFn) => callbackFn.call());
         };
         document.head.appendChild(script);
     }
 
-//END SHARED FUNCTION
+    //END SHARED FUNCTION
 })(); // end of class
