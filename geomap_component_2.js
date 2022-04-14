@@ -112,7 +112,7 @@
           }
         });
         webscene.add(recreationLayer);
-        */
+        
 
         const view = new SceneView({
           container: "viewDiv",
@@ -128,7 +128,7 @@
           });
           // Add widget to top-right of the view
           view.ui.add(editor, "top-right");
-        });
+        });*/
       });
             
             
