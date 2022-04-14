@@ -44,6 +44,7 @@
             //id: "206a6a13162c4d9a95ea6a87abad2437"
           }
         });
+                /*
 
         // Create a layer with visualVariables to use interactive handles for size and rotation
         const recreationLayer = new FeatureLayer({
@@ -113,6 +114,7 @@
         });
 
         webscene.add(recreationLayer);
+        */
 
         const view = new SceneView({
           container: "viewDiv",
