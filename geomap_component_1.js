@@ -40,7 +40,8 @@
         // Create a map from the referenced webscene item id
         const webscene = new WebScene({
           portalItem: {
-            id: "206a6a13162c4d9a95ea6a87abad2437"
+              id: "5f7b11e7d4794742a9657358eb2ce2d3"
+            //id: "206a6a13162c4d9a95ea6a87abad2437"
           }
         });
 
