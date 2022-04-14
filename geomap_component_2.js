@@ -118,9 +118,9 @@
         const view = new SceneView({
           container: "viewDiv",
           qualityProfile: "high",
-         // map: webscene
+          map: webscene
         });
-/*
+
         view.when(() => {
           view.popup.autoOpenEnabled = false; //disable popups
           // Create the Editor
@@ -129,7 +129,7 @@
           });
           // Add widget to top-right of the view
           view.ui.add(editor, "top-right");
-        });*/
+        });
       });
             
             
